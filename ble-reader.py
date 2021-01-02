@@ -40,7 +40,7 @@ def read_characterictic(peripheral, characteristic_uuid):
         if (ch.supportsRead()):            
             val = binascii.b2a_hex(ch.read())
             val = binascii.unhexlify(val)
-            val = struct.unpack('f', val)[0]
+            val = struct.unpack('i', val)[0]
     finally:
         return val
 
@@ -48,5 +48,6 @@ def read_characterictic(peripheral, characteristic_uuid):
 if __name__ == '__main__':
     while 1:
         val = read_ble_server("24:0A:C4:32:36:2E", "a869a793-4b6e-4334-b1e3-eb0b74526c14")
+        #val = read_ble_server("24:0A:C4:31:46:B2", "a869a793-4b6e-4334-b1e3-eb0b74526c14")
         print("val: " + str(val))
         time.sleep(2)
