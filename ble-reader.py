@@ -3,9 +3,18 @@ import struct
 import time
 from bluepy.btle import UUID, Peripheral
 
-
 #mac_address = "24:0A:C4:32:36:2E"
 #characteristic_uuid = "a869a793-4b6e-4334-b1e3-eb0b74526c14"
+
+class MyDelegate(btle.DefaultDelegate):
+    def __init__(self, params):
+        btle.DefaultDelegate.__init__(self)
+        # ... initialise here
+
+    def handleNotification(self, cHandle, data):
+        # ... perhaps check cHandle
+        # ... process 'data'
+        print("data: " + data)
 
 def read_ble_server(mac_address, characteristic_uuid, struct_unpack_type = None):
     '''
@@ -22,15 +31,23 @@ def read_ble_server(mac_address, characteristic_uuid, struct_unpack_type = None)
     print("connecting...")
     characteristic_uuid = UUID(characteristic_uuid)
     p = Peripheral(mac_address, "public")
+    p.setDelegate( MyDelegate(params) )
     i = 0
     val = None
     try:
         #val = read_characterictic(p, characteristic_uuid, struct_unpack_type)
-        while i < 10:
-            val = read_characterictic(p, characteristic_uuid, struct_unpack_type)
-            print("val: " + str(val))
-            i += 1
-            time.sleep(1)
+        # while i < 10:
+        #     val = read_characterictic(p, characteristic_uuid, struct_unpack_type)
+        #     print("val: " + str(val))
+        #     i += 1
+        #     time.sleep(1)
+        while True:
+            if p.waitForNotifications(1.0):
+                # handleNotification() was called
+                continue
+
+            print "Waiting..."
+            # Perhaps do something else here        
     finally:
         p.disconnect()
         print("disconnected")
