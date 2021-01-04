@@ -1,20 +1,22 @@
 import binascii
 import struct
 import time
-from bluepy.btle import UUID, Peripheral
+import sys
+
+from bluepy.btle import UUID, Peripheral, DefaultDelegate
 
 #mac_address = "24:0A:C4:32:36:2E"
 #characteristic_uuid = "a869a793-4b6e-4334-b1e3-eb0b74526c14"
 
-class MyDelegate(btle.DefaultDelegate):
-    def __init__(self, params):
-        btle.DefaultDelegate.__init__(self)
+class MyDelegate(DefaultDelegate):
+    def __init__(self, params = None):
+        DefaultDelegate.__init__(self)
         # ... initialise here
 
     def handleNotification(self, cHandle, data):
         # ... perhaps check cHandle
         # ... process 'data'
-        print("data: " + data)
+        print("data received: ")
 
 def read_ble_server(mac_address, characteristic_uuid, struct_unpack_type = None):
     '''
@@ -31,7 +33,7 @@ def read_ble_server(mac_address, characteristic_uuid, struct_unpack_type = None)
     print("connecting...")
     characteristic_uuid = UUID(characteristic_uuid)
     p = Peripheral(mac_address, "public")
-    p.setDelegate( MyDelegate(params) )
+    p.setDelegate( MyDelegate() )
     i = 0
     val = None
     try:
@@ -41,13 +43,18 @@ def read_ble_server(mac_address, characteristic_uuid, struct_unpack_type = None)
         #     print("val: " + str(val))
         #     i += 1
         #     time.sleep(1)
+        print ("Before waiting...")
         while True:
-            if p.waitForNotifications(1.0):
+            if p.waitForNotifications(3):
                 # handleNotification() was called
+                print("waif for Notification: true")
                 continue
 
-            print "Waiting..."
-            # Perhaps do something else here        
+            print ("Waiting...")
+            # time.sleep(1)
+            # Perhaps do something else here
+    except:
+        print("Unexpected error: ", sys.exc_info()[1])        
     finally:
         p.disconnect()
         print("disconnected")
