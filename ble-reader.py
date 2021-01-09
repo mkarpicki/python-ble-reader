@@ -3,7 +3,7 @@ import struct
 import time
 import sys
 
-from bluepy.btle import UUID, Peripheral, DefaultDelegate
+from bluepy.btle import UUID, Peripheral, DefaultDelegate, BTLEDisconnectError
 
 #mac_address = "24:0A:C4:32:36:2E"
 #characteristic_uuid = "a869a793-4b6e-4334-b1e3-eb0b74526c14"
@@ -53,6 +53,9 @@ def read_ble_server(mac_address, characteristic_uuid, struct_unpack_type = None)
             print ("Waiting...")
             # time.sleep(1)
             # Perhaps do something else here
+    except:
+        print("BTLEDisconnectError")
+        pass
     except:
         print("Unexpected error: ", sys.exc_info()[1])        
     finally:
