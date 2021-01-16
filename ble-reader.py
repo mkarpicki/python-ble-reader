@@ -53,7 +53,7 @@ def read_ble_server(mac_address, characteristic_uuid, struct_unpack_type = None)
             print ("Waiting...")
             # time.sleep(1)
             # Perhaps do something else here
-    except:
+    except BTLEDisconnectError:
         print("BTLEDisconnectError")
         pass
     except:
