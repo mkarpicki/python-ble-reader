@@ -24,13 +24,15 @@ def read_ble_server(mac_address, characteristic_uuid, struct_unpack_type = None)
     p = Peripheral(mac_address, "public")
     i = 0
     val = None
+
     try:
         #val = read_characterictic(p, characteristic_uuid, struct_unpack_type)
-        while i < 10:
+        while i < 2:
+            time.sleep(2)
             val = read_characterictic(p, characteristic_uuid, struct_unpack_type)
-            print("val: " + str(val))
+            print(mac_address + " val: " + str(val))
             i += 1
-            time.sleep(1)
+            
     finally:
         p.disconnect()
         print("disconnected")
@@ -56,8 +58,9 @@ def read_characterictic(peripheral, characteristic_uuid, struct_unpack_type = No
 
 
 if __name__ == '__main__':
-    #val = read_ble_server("24:0A:C4:32:36:2E", "a869a793-4b6e-4334-b1e3-eb0b74526c14", "i")
     val = read_ble_server("24:0A:C4:31:46:B2", "a869a793-4b6e-4334-b1e3-eb0b74526c14", "i")
+    val = read_ble_server("24:0A:C4:32:36:2E", "a869a793-4b6e-4334-b1e3-eb0b74526c14", "i")
+
     #while 1:
     #    val = read_ble_server("24:0A:C4:32:36:2E", "a869a793-4b6e-4334-b1e3-eb0b74526c14", "i")
     #    #val = read_ble_server("24:0A:C4:31:46:B2", "a869a793-4b6e-4334-b1e3-eb0b74526c14", "i")
