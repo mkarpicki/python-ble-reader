@@ -1,13 +1,47 @@
 import binascii
 import struct
 import time
-from bluepy.btle import UUID, Peripheral
+from bluepy.btle import UUID, Peripheral, DefaultDelegate
 
 
 #mac_address = "24:0A:C4:32:36:2E"
 #characteristic_uuid = "a869a793-4b6e-4334-b1e3-eb0b74526c14"
 
-def read_ble_server(mac_address, characteristic_uuid, struct_unpack_type = None):
+class MyDelegate(DefaultDelegate):
+    def __init__(self):
+        DefaultDelegate.__init__(self)
+        # ... initialise here
+
+    def handleNotification(self, cHandle, data):
+    	data = bytearray(data)
+    	print ("handleNotification %s" % data)
+
+def watch_ble_server(mac_address, characteristic_uuid, struct_unpack_type = None):
+
+    print(mac_address)
+    print("+connecting...")
+    characteristic_uuid = UUID(characteristic_uuid)
+    val = None
+
+    time.sleep(1)
+    try:
+        peripheral = Peripheral(mac_address, "public")
+        peripheral.setDelegate( MyDelegate() )
+
+
+        while True:
+            if peripheral.waitForNotifications(1.0):
+                # handleNotification() was called
+                continue
+            print ("Waiting...")
+
+        time.sleep(1)
+        peripheral.disconnect()
+    finally:
+        print("+done")
+
+
+def read_from_ble_server(mac_address, characteristic_uuid, struct_unpack_type = None):
     '''
     Connecting to BLE server and reads characteristic by UUID
 
@@ -18,32 +52,31 @@ def read_ble_server(mac_address, characteristic_uuid, struct_unpack_type = None)
 
     Returns: string
     '''
-    
-    print("connecting...")
+
+    print(mac_address)
+    print("+connecting...")
     characteristic_uuid = UUID(characteristic_uuid)
-    p = Peripheral(mac_address, "public")
-    i = 0
     val = None
 
     try:
-        #val = read_characterictic(p, characteristic_uuid, struct_unpack_type)
-        while i < 2:
-            time.sleep(2)
-            val = read_characterictic(p, characteristic_uuid, struct_unpack_type)
-            print(mac_address + " val: " + str(val))
-            i += 1
-            
+        time.sleep(1)
+        peripheral = Peripheral(mac_address, "public")
+        time.sleep(1)
+        val = read_characterictic(peripheral, characteristic_uuid, struct_unpack_type)
+        time.sleep(1)
+        peripheral.disconnect()
+        
+        print("+val: " + str(val))
     finally:
-        p.disconnect()
-        print("disconnected")
         return val
+
 
 def read_characterictic(peripheral, characteristic_uuid, struct_unpack_type = None):
     '''
     read_characterictic readme
     '''
     try:
-        print("reading...")
+        print("+reading...")
         val = None
         ch = peripheral.getCharacteristics(uuid=characteristic_uuid)[0]
         
@@ -58,11 +91,7 @@ def read_characterictic(peripheral, characteristic_uuid, struct_unpack_type = No
 
 
 if __name__ == '__main__':
-    val = read_ble_server("24:0A:C4:31:46:B2", "a869a793-4b6e-4334-b1e3-eb0b74526c14", "i")
-    val = read_ble_server("24:0A:C4:32:36:2E", "a869a793-4b6e-4334-b1e3-eb0b74526c14", "i")
+    #val = read_from_ble_server("24:0A:C4:31:46:B2", "a869a793-4b6e-4334-b1e3-eb0b74526c14", "i")
+    #val = read_from_ble_server("24:0A:C4:32:36:2E", "a869a793-4b6e-4334-b1e3-eb0b74526c14", "i")
+    watch_ble_server("24:0A:C4:31:36:76", "a869a793-4b6e-4334-b1e3-eb0b74526c14", "i")
 
-    #while 1:
-    #    val = read_ble_server("24:0A:C4:32:36:2E", "a869a793-4b6e-4334-b1e3-eb0b74526c14", "i")
-    #    #val = read_ble_server("24:0A:C4:31:46:B2", "a869a793-4b6e-4334-b1e3-eb0b74526c14", "i")
-    #    print("val: " + str(val))
-    #    time.sleep(10)
